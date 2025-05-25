@@ -138,7 +138,7 @@ void parseAndSend(String data) {
   //   roll = data.substring(0, commaIndex).toFloat();
   //   pitch = data.substring(commaIndex + 1).toFloat();
 
-  //   // Gửi lên ThingsBoard (JSON payload)
+  //   ThingsBoard (JSON payload)
   //   String payload = "{\"roll\":" + String(roll, 2) + ",\"pitch\":" + String(pitch, 2) + "}";
   //   client.publish("v1/devices/me/telemetry", payload.c_str());
   //   Serial.println("Sent: " + payload);
