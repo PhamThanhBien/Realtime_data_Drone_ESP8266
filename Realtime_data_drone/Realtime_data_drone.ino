@@ -10,10 +10,12 @@ Copyright (c) 2025 Pham Thanh Bien
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
+const char* ssid = "Bieniphone";
+const char* password = "24445va6";
 // const char* ssid = "SonThanh";
 // const char* password = "0912480208";
-const char* ssid = "Nhan";
-const char* password = "12345678";
+// const char* ssid = "Nhan";
+// const char* password = "12345678";
 const char* token = "LjAXHMVcmIzujOBJ8mAz"; 
 const char* mqtt_server = "demo.thingsboard.io";
 
@@ -128,7 +130,7 @@ void loop() {
 
 
 void parseAndSend(String data) {
-  float roll = 0, pitch = 0;
+  float roll = 0, pitch = 0, kp = 0, ki = 0, kd = 0;
   int th1 = 0, th2 = 0, th3 = 0, th4 = 0;
   int commaIndex = data.indexOf(',');
 
@@ -142,9 +144,9 @@ void parseAndSend(String data) {
   //   Serial.println("Sent: " + payload);
   // } 
 
-   int result = sscanf(data.c_str(), "%f,%f,%d,%d,%d,%d", &roll, &pitch, &th1, &th2, &th3, &th4);
+   int result = sscanf(data.c_str(), "%f,%f,%d,%d,%d,%d,%f,%f,%f", &roll, &pitch, &th1, &th2, &th3, &th4, &kp, &ki, &kd);
   
-   if (result == 6) {  
+   if (result == 9) {  
     //JSON payload
     String payload = "{";
     payload += "\"roll\":" + String(roll, 2) + ",";
@@ -152,7 +154,10 @@ void parseAndSend(String data) {
     payload += "\"th1\":" + String(th1) + ",";
     payload += "\"th2\":" + String(th2) + ",";
     payload += "\"th3\":" + String(th3) + ",";
-    payload += "\"th4\":" + String(th4);
+    payload += "\"th4\":" + String(th4) + ",";
+    payload += "\"kp\":" + String(kp) + ",";
+    payload += "\"ki\":" + String(ki) + ",";
+    payload += "\"kd\":" + String(kd);
     payload += "}";
      client.publish("v1/devices/me/telemetry", payload.c_str());
     Serial.println("Sent: " + payload);
@@ -162,6 +167,22 @@ void parseAndSend(String data) {
   }
 
   int rssi = WiFi.RSSI();  
-  String payload = "{\"wifi_signal\":" + String(rssi) + "}";
+  // String payload = "{\"wifi_signal\":" + String(rssi) + "}";
+  // client.publish("v1/devices/me/telemetry", payload.c_str());
+
+  // Đọc ADC
+  int adcValue = analogRead(A0);  // 0 - 1023
+  float vADC = adcValue * (3.3 / 1023.0);  // Giả sử dùng NodeMCU ADC 0-3.3V
+  float batteryVoltage = vADC * (48.05 / 9.75) * 0.9622;  // Bộ chia R1 = 39k, R2 = 10k
+
+  // Tạo JSON gửi lên
+  // String payload = "{\"battery_voltage\":" + String(batteryVoltage, 2) + "}";
+  // Serial.println(payload);
+  String payload = "{";
+payload += "\"wifi_signal\":" + String(rssi) + ",";
+payload += "\"battery_voltage\":" + String(batteryVoltage, 2);
+payload += "}";
+
+  // Gửi đến ThingsBoard topic telemetry
   client.publish("v1/devices/me/telemetry", payload.c_str());
 }
