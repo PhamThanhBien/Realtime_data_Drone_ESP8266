@@ -170,12 +170,12 @@ void parseAndSend(String data) {
   // String payload = "{\"wifi_signal\":" + String(rssi) + "}";
   // client.publish("v1/devices/me/telemetry", payload.c_str());
 
-  // Đọc ADC
+  // Read ADC
   int adcValue = analogRead(A0);  // 0 - 1023
-  float vADC = adcValue * (3.3 / 1023.0);  // Giả sử dùng NodeMCU ADC 0-3.3V
-  float batteryVoltage = vADC * (48.05 / 9.75) * 0.9622;  // Bộ chia R1 = 39k, R2 = 10k
+  float vADC = adcValue * (3.3 / 1023.0);  
+  float batteryVoltage = vADC * (48.05 / 9.75) * 0.9622;  // R1 = 39k, R2 = 10k
 
-  // Tạo JSON gửi lên
+  // Create JSON 
   // String payload = "{\"battery_voltage\":" + String(batteryVoltage, 2) + "}";
   // Serial.println(payload);
   String payload = "{";
@@ -183,6 +183,5 @@ payload += "\"wifi_signal\":" + String(rssi) + ",";
 payload += "\"battery_voltage\":" + String(batteryVoltage, 2);
 payload += "}";
 
-  // Gửi đến ThingsBoard topic telemetry
   client.publish("v1/devices/me/telemetry", payload.c_str());
 }
